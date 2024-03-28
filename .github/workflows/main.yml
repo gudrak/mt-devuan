@@ -9,17 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    container:
-      image: debian:unstable
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Install dependencies
         run: |
-          apt-get update
-          apt-get install -y \
+          sudo apt update
+          sudo apt install -y \
             g++ \
             make \
             libc6-dev \
