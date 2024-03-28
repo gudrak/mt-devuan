@@ -1,35 +1,37 @@
-name: Build Minetest Package
+compiler:
+  name: gcc
+  version: 11
 
-on:
-  push:
-    branches:
-      - main
+dependencies:
+  install:
+    debian: 
+      - g++
+      - make
+      - libc6-dev
+      - libbz2-dev
+      - libpng-dev
+      - libjpeg-dev
+      - libxxf86vm-dev
+      - libgl1-mesa-dev
+      - libsqlite3-dev
+      - libogg-dev
+      - libvorbis-dev
+      - libopenal-dev
+      - libcurl4-gnutls-dev
+      - libfreetype6-dev
+      - zlib1g-dev
+      - libgmp-dev
+      - libjsoncpp-dev
+      - git
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Clone Minetest repository
-        run: git clone --depth 1 --branch stable-5 https://github.com/minetest/minetest.git
-
-      - name: Clone Irrlicht repository
-        run: git clone --depth 1 --branch 1.9.0mt13 https://github.com/minetest/irrlicht.git minetest/lib/irrlichtmt
-
-      - name: Navigate to Minetest directory
-        run: cd minetest
-
-      - name: Run CMake
-        run: cmake . -DRUN_IN_PLACE=TRUE
-
-      - name: Build Minetest
-        run: make -j$(nproc)
-
-      - name: Create Debian package
-        run: |
-          mkdir -p debian/minetest
-          cp -r bin debian/minetest
-          dpkg-deb --build debian/minetest
+build_script:
+  - git clone -b 1.9.0mt13 --single-branch https://github.com/minetest/irrlichtmt
+  - cd irrlichtmt/source/Irrlicht
+  - make
+  - sudo make install
+  - cd ../../..
+  - git clone --branch 5.8.0 https://github.com/minetest/minetest
+  - cd minetest
+  - cmake . -DRUN_IN_PLACE=TRUE -B build
+  - cd build
+  - make -j$(nproc)
