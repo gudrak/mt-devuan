@@ -16,25 +16,19 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y g++ make libc6-dev cmake libpng-dev libjpeg-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev libluajit-5.1-dev gettext libsdl2-dev
+        sudo apt update
+        sudo apt install -y g++ make libc6-dev cmake libpng-dev libjpeg-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev libluajit-5.1-dev gettext libsdl2-dev
+
+    - name: Clone Minetest
+      run: |
+        git clone --depth 1 https://github.com/minetest/minetest.git
+        cd minetest
 
     - name: Build Minetest
       run: |
-        git clone --depth 1 https://github.com/minetest/minetest.git --branch 5.8.0
-        cd minetest
-        cmake . -DRUN_IN_PLACE=TRUE -DIRRLICHT_INCLUDE_DIR=../irrlicht/include -DIRRLICHT_LIBRARY=../irrlicht/libIrrlichtMt.so
-        make -j2
+        cmake . -DRUN_IN_PLACE=TRUE
+        make -j$(nproc)
 
-    - name: Build IrrlichtMt
+    - name: Run Minetest
       run: |
-        git clone https://github.com/minetest/irrlicht.git
-        cd irrlicht
-        git checkout 1.9.0mt13
-        cmake .
-        make
-
-    - name: Package Minetest
-      run: |
-        sudo apt-get install -y checkinstall
-        sudo checkinstall --pkgname=minetest --pkgversion="5.8.0" --backup=no --deldoc=yes --fstrans=no
+        ./bin/minetest
