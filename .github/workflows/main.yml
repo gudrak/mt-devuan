@@ -38,7 +38,10 @@ jobs:
             gettext
 
       - name: Clone Minetest repository
-        run: git clone --depth 1 https://github.com/minetest/minetest.git
+        run: git clone --depth 1 --branch stable-5 https://github.com/minetest/minetest.git
+
+      - name: Clone Irrlicht repository
+        run: git clone --depth 1 --branch 1.9.0mt13 https://github.com/minetest/irrlicht.git minetest/lib/irrlichtmt
 
       - name: Change to minetest directory
         run: cd minetest
