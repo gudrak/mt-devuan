@@ -1,37 +1,35 @@
-compiler:
-  name: gcc
-  version: 11
+name: Build Minetest
 
-dependencies:
-  install:
-    debian: 
-      - g++
-      - make
-      - libc6-dev
-      - libbz2-dev
-      - libpng-dev
-      - libjpeg-dev
-      - libxxf86vm-dev
-      - libgl1-mesa-dev
-      - libsqlite3-dev
-      - libogg-dev
-      - libvorbis-dev
-      - libopenal-dev
-      - libcurl4-gnutls-dev
-      - libfreetype6-dev
-      - zlib1g-dev
-      - libgmp-dev
-      - libjsoncpp-dev
-      - git
+on:
+  push:
+    branches:
+      - main
+      - master
 
-build_script:
-  - git clone -b 1.9.0mt13 --single-branch https://github.com/minetest/irrlichtmt
-  - cd irrlichtmt/source/Irrlicht
-  - make
-  - sudo make install
-  - cd ../../..
-  - git clone --branch 5.8.0 https://github.com/minetest/minetest
-  - cd minetest
-  - cmake . -DRUN_IN_PLACE=TRUE -B build
-  - cd build
-  - make -j$(nproc)
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Minetest dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y g++ make libc6-dev libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev git
+
+      - name: Compile IrrlichtMt
+        run: |
+          git clone -b 1.9.0mt13 --single-branch https://github.com/minetest/irrlichtmt
+          cd irrlichtmt/source/Irrlicht
+          make
+          sudo make install
+
+      - name: Compile Minetest
+        run: |
+          git clone --branch 5.8.0 https://github.com/minetest/minetest
+          cd minetest
+          cmake . -DRUN_IN_PLACE=TRUE -B build
+          cd build
+          make -j$(nproc)
