@@ -2,34 +2,39 @@ name: Build Minetest
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Minetest dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y g++ make libc6-dev libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev git
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libbz2-dev libgettextpo-dev libfreetype6-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libluajit-5.1-dev liblua5.1-0-dev libleveldb-dev
 
-      - name: Compile IrrlichtMt
-        run: |
-          git clone -b 1.9.0mt13 --single-branch https://github.com/minetest/irrlichtmt
-          cd irrlichtmt/source/Irrlicht
-          make
-          sudo make install
+    - name: Build IrrlichtMt
+      run: |
+        git clone https://github.com/minetest/irrlicht.git
+        cd irrlicht
+        git checkout 1.9.0mt13
+        cmake .
+        make
 
-      - name: Compile Minetest
-        run: |
-          git clone --branch 5.8.0 https://github.com/minetest/minetest
-          cd minetest
-          cmake . -DRUN_IN_PLACE=TRUE -B build
-          cd build
-          make -j$(nproc)
+    - name: Build Minetest
+      run: |
+        git clone --depth 1 https://github.com/minetest/minetest.git --branch 5.8.0
+        cd minetest
+        cmake . -DRUN_IN_PLACE=TRUE -DIRRLICHT_INCLUDE_DIR=../irrlicht/include -DIRRLICHT_LIBRARY=../irrlicht/libIrrlichtMt.so
+        make -j2
+
+    - name: Package Minetest
+      run: |
+        sudo apt-get install -y checkinstall
+        sudo checkinstall --pkgname=minetest --pkgversion="5.8.0" --backup=no --deldoc=yes --fstrans=no --default
