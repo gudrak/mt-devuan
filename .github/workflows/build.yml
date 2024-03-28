@@ -36,11 +36,13 @@ jobs:
     - name: Create Debian package
       run: |
         cd minetest
-        sudo make package_debian
-      
+        mkdir -p debian/minetest
+        cp -r bin share debian/minetest
+        dpkg-deb --build debian/minetest
+
     - name: Upload package
       uses: actions/upload-artifact@v2
       with:
         name: minetest-debian-package
-        path: minetest*.deb
+        path: minetest/debian/minetest*.deb
         
