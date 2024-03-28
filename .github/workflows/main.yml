@@ -13,52 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            g++ \
-            make \
-            libc6-dev \
-            cmake \
-            libpng-dev \
-            libjpeg-dev \
-            libsdl2-dev \
-            libfreetype6-dev \
-            libsqlite3-dev \
-            zlib1g-dev \
-            libopenal-dev \
-            libogg-dev \
-            libvorbis-dev \
-            libcurl4-gnutls-dev \
-            libgmp-dev \
-            libjsoncpp-dev \
-            libzstd-dev \
-            libluajit-5.1-dev \
-            gettext
-
       - name: Clone Minetest repository
         run: git clone --depth 1 --branch stable-5 https://github.com/minetest/minetest.git
 
       - name: Clone Irrlicht repository
         run: git clone --depth 1 --branch 1.9.0mt13 https://github.com/minetest/irrlicht.git minetest/lib/irrlichtmt
 
-      - name: Change to minetest directory
+      - name: Navigate to Minetest directory
         run: cd minetest
 
+      - name: Run CMake
+        run: cmake . -DRUN_IN_PLACE=TRUE
+
       - name: Build Minetest
-        run: |
-          cmake . -DRUN_IN_PLACE=TRUE
-          make -j$(nproc)
+        run: make -j$(nproc)
 
       - name: Create Debian package
         run: |
           mkdir -p debian/minetest
           cp -r bin debian/minetest
           dpkg-deb --build debian/minetest
-
-      - name: Upload package
-        uses: actions/upload-artifact@v2
-        with:
-          name: minetest-debian-package
-          path: minetest/debian/minetest*.deb
