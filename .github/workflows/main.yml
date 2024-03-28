@@ -13,6 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Change to minetest directory
+        run: cd minetest
+
       - name: Install dependencies
         run: |
           sudo apt update
@@ -37,9 +40,6 @@ jobs:
             libzstd-dev \
             libluajit-5.1-dev \
             git
-
-      - name: Change to minetest directory
-        run: cd minetest
 
       - name: Build Minetest
         run: |
