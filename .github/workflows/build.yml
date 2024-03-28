@@ -10,24 +10,37 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential devscripts cmake
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ make libc6-dev cmake libpng-dev libjpeg-dev libxi-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev libluajit-5.1-dev git
       
     - name: Clone Minetest repository
-      run: git clone --branch 5.8.0 https://github.com/minetest/minetest.git
+      run: git clone --depth 1 --branch stable-5 https://github.com/minetest/minetest.git
       
-    - name: Clone IrrlichtMt repository
-      run: git clone --depth=1 https://github.com/minetest/irrlicht lib/irrlichtmt
+    - name: Clone Irrlicht repository
+      run: git clone --depth 1 https://github.com/minetest/irrlicht.git minetest/lib/irrlichtmt
       
-    - name: Checkout Irrlicht version
-      run: cd lib/irrlichtmt && git checkout 1.9.0mt13
+    - name: Checkout specific Irrlicht version
+      run: |
+        cd minetest/lib/irrlichtmt/
+        git fetch --all --tags
+        git checkout 1.9.0mt13
       
     - name: Build Minetest
-      run: cd minetest && cmake -DENABLE_CURSES=ON . && make
+      run: |
+        cd minetest
+        cmake .
+        make
       
     - name: Create Debian package
-      run: cd minetest && sudo make package_debian
+      run: |
+        cd minetest
+        sudo make package_debian
       
+    - name: Upload package
+      uses: actions/upload-artifact@v2
+      with:
+        name: minetest-debian-package
+        path: minetest*.deb
+        
