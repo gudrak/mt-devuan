@@ -18,13 +18,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y g++ make libc6-dev cmake libpng-dev libjpeg-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev libluajit-5.1-dev gettext libsdl2-dev
-    - name: Build IrrlichtMt
-      run: |
-        git clone https://github.com/minetest/irrlicht.git
-        cd irrlicht
-        git checkout 1.9.0mt13
-        cmake .
-        make
 
     - name: Build Minetest
       run: |
@@ -33,7 +26,15 @@ jobs:
         cmake . -DRUN_IN_PLACE=TRUE -DIRRLICHT_INCLUDE_DIR=../irrlicht/include -DIRRLICHT_LIBRARY=../irrlicht/libIrrlichtMt.so
         make -j2
 
+    - name: Build IrrlichtMt
+      run: |
+        git clone https://github.com/minetest/irrlicht.git
+        cd irrlicht
+        git checkout 1.9.0mt13
+        cmake .
+        make
+
     - name: Package Minetest
       run: |
         sudo apt-get install -y checkinstall
-        sudo checkinstall --pkgname=minetest --pkgversion="5.8.0" --backup=no --deldoc=yes --fstrans=no --default
+        sudo checkinstall --pkgname=minetest --pkgversion="5.8.0" --backup=no --deldoc=yes --fstrans=no
