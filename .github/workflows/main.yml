@@ -38,15 +38,16 @@ jobs:
             libluajit-5.1-dev \
             git
 
+      - name: Change to minetest directory
+        run: cd minetest
+
       - name: Build Minetest
         run: |
-          cd minetest
           cmake .
           make
 
       - name: Create Debian package
         run: |
-          cd minetest
           mkdir -p debian/minetest
           cp -r bin debian/minetest
           dpkg-deb --build debian/minetest
@@ -56,4 +57,3 @@ jobs:
         with:
           name: minetest-debian-package
           path: minetest/debian/minetest*.deb
-          
