@@ -1,0 +1,27 @@
+name: Build Minetest Package
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential devscripts
+      
+    - name: Clone Minetest repository
+      run: git clone --branch 5.8.0 https://github.com/minetest/minetest.git
+      
+    - name: Build Minetest
+      run: cd minetest && cmake . && make
+      
+    - name: Create Debian package
+      run: cd minetest && sudo make package_debian
+      
