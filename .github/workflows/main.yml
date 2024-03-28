@@ -13,9 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Change to minetest directory
-        run: cd minetest
-
       - name: Install dependencies
         run: |
           sudo apt update
@@ -26,25 +23,30 @@ jobs:
             cmake \
             libpng-dev \
             libjpeg-dev \
-            libxi-dev \
-            libgl1-mesa-dev \
+            libsdl2-dev \
+            libfreetype6-dev \
             libsqlite3-dev \
+            zlib1g-dev \
+            libopenal-dev \
             libogg-dev \
             libvorbis-dev \
-            libopenal-dev \
             libcurl4-gnutls-dev \
-            libfreetype6-dev \
-            zlib1g-dev \
             libgmp-dev \
             libjsoncpp-dev \
             libzstd-dev \
             libluajit-5.1-dev \
-            git
+            gettext
+
+      - name: Clone Minetest repository
+        run: git clone --depth 1 https://github.com/minetest/minetest.git
+
+      - name: Change to minetest directory
+        run: cd minetest
 
       - name: Build Minetest
         run: |
-          cmake .
-          make
+          cmake . -DRUN_IN_PLACE=TRUE
+          make -j$(nproc)
 
       - name: Create Debian package
         run: |
