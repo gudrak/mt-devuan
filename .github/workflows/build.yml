@@ -14,13 +14,19 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential devscripts
+      run: sudo apt-get update && sudo apt-get install -y build-essential devscripts cmake
       
     - name: Clone Minetest repository
       run: git clone --branch 5.8.0 https://github.com/minetest/minetest.git
       
+    - name: Clone IrrlichtMt repository
+      run: git clone --depth=1 https://github.com/minetest/irrlicht lib/irrlichtmt
+      
+    - name: Checkout Irrlicht version
+      run: cd lib/irrlichtmt && git checkout 1.9.0mt13
+      
     - name: Build Minetest
-      run: cd minetest && cmake . && make
+      run: cd minetest && cmake -DENABLE_CURSES=ON . && make
       
     - name: Create Debian package
       run: cd minetest && sudo make package_debian
